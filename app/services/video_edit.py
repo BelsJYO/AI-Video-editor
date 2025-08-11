@@ -2,20 +2,20 @@
 import os
 import tempfile
 from typing import Dict, Any, List
-import requests
+import requests 
 
 # Import moviepy components
 try:
-    from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip, concatenate_videoclips
+    from moviepy import VideoFileClip, TextClip, CompositeVideoClip, concatenate_videoclips
     MOVIEPY_AVAILABLE = True
-except ImportError:
-    print("Warning: MoviePy not available. Video processing will be limited.")
+except ImportError as e:
+    print(f"Warning: MoviePy not available. Video processing will be limited. Error: {e}")
     MOVIEPY_AVAILABLE = False
-    # Define dummy classes to prevent import errors
     VideoFileClip = None
     TextClip = None
     CompositeVideoClip = None
     concatenate_videoclips = None
+
 
 from app.utils.config import PIXABAY_API_KEY, PEXELS_API_KEY
 

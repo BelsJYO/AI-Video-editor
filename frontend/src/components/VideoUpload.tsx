@@ -1,6 +1,3 @@
-` tags as it seems to be a full and correct replacement.
-
-<replit_final_file>
 import React, { useState, useRef } from 'react';
 import { Upload, Video } from 'lucide-react';
 import { VideoData } from '../types';

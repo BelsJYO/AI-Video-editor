@@ -1,4 +1,5 @@
-
+import { useEffect } from 'react';
+import { testBackend } from './utils/api'; // adjust path if api.js is not in /utils
 import React, { useState } from 'react';
 import VideoUpload from './components/VideoUpload';
 import ChatInterface from './components/ChatInterface';
@@ -9,6 +10,10 @@ function App() {
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [processedVideoUrl, setProcessedVideoUrl] = useState<string | null>(null);
 
+   useEffect(() => {
+    testBackend(); // call backend on page load
+  }, []);
+  
   const handleVideoUploaded = (data: VideoData) => {
     setVideoData(data);
     setProcessedVideoUrl(null);
