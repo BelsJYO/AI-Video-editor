@@ -1,18 +1,15 @@
-
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 import uvicorn
 import os
-from typing import Optional
 
 from app.routes import chat, edit
 from app.utils.config import BACKEND_PORT, FRONTEND_URL
 
 app = FastAPI(title="AI Video Editor", version="1.0.0")
 
-# CORS middleware for development
+# CORS middleware for development and production
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL, "http://localhost:3000", "https://*.replit.dev"],
@@ -34,8 +31,9 @@ def health_check():
     return {"status": "healthy"}
 
 # Mount static files for production (when frontend is built)
-if os.path.exists("frontend/dist"):
-    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
+frontend_dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+if os.path.exists(frontend_dist_path):
+    app.mount("/", StaticFiles(directory=frontend_dist_path, html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(BACKEND_PORT))
