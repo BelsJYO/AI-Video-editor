@@ -1,0 +1,164 @@
+Replit Agent Prompt — AI Video Editor MVP (Single Repl + API Links + Hobbyist Deploy Plan)
+
+    Goal
+    Build a single Replit project containing both backend (FastAPI + Python) and frontend (React + TypeScript) for an AI-assisted video editor.
+    Backend handles AI parsing (Groq API), video processing (MoviePy + FFmpeg), and media fetching (Pixabay/Pexels).
+    Frontend provides the UI for video upload, preview, and AI chat commands.
+    In production, FastAPI serves the built React files so both run together on Railway.
+
+    Technologies
+
+        Backend: Python 3, FastAPI, MoviePy, ffmpeg-python, python-dotenv, requests, Groq API, Whisper API (optional), Whisper.cpp (optional offline captions)
+
+        Frontend: React + TypeScript, Tailwind CSS, Shadcn/UI, Remotion
+
+        Video Assets: Pixabay API, Pexels API
+
+        Storage: Railway /tmp (temporary), Cloudflare R2 (optional persistent)
+
+    Free API Keys to Acquire
+
+        Groq API → https://console.groq.com
+
+        OpenAI API (optional if using Whisper.cpp) → https://platform.openai.com
+
+        Pixabay API → https://pixabay.com/api/docs/
+
+        Pexels API → https://www.pexels.com/api/
+
+        Cloudflare R2 API → https://dash.cloudflare.com/ → Create R2 bucket in dashboard
+
+    Flow
+
+        User uploads video via React frontend.
+
+        Frontend sends video metadata + user’s natural language command to backend /chat endpoint.
+
+        Backend calls Groq API → receives structured JSON edit instructions.
+
+        Backend processes video with MoviePy / ffmpeg-python.
+
+        Optional: Generate captions (Whisper), add music (Pixabay), add b-roll (Pexels).
+
+        Send final video back to frontend for preview/download.
+
+    Project Structure (Single Repl)
+
+/app
+  /routes
+      edit.py       # /edit endpoint for processing video
+      chat.py       # /chat endpoint for AI command parsing
+  /services
+      ai_parser.py  # Groq API integration
+      video_edit.py # MoviePy + ffmpeg logic
+      captions.py   # Whisper integration
+  /utils
+      config.py     # Loads .env vars & warns if missing
+  main.py           # FastAPI entry point
+/frontend
+  /src
+      components/
+      pages/
+      styles/
+      utils/
+  public/
+  package.json
+  tailwind.config.js
+.env.example
+requirements.txt
+railway.json
+
+.env.example Content
+
+GROQ_API_KEY=your_groq_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+PIXABAY_API_KEY=your_pixabay_api_key_here
+PEXELS_API_KEY=your_pexels_api_key_here
+CLOUDFLARE_ACCOUNT_ID=your_account_id_here
+CLOUDFLARE_R2_ACCESS_KEY_ID=your_r2_access_key_id_here
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_r2_secret_access_key_here
+CLOUDFLARE_R2_BUCKET_NAME=your_bucket_name_here
+BACKEND_PORT=8000
+FRONTEND_URL=http://localhost:3000
+
+config.py Content
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+REQUIRED_KEYS = ["GROQ_API_KEY", "PIXABAY_API_KEY", "PEXELS_API_KEY"]
+OPTIONAL_KEYS = [
+    "OPENAI_API_KEY",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_R2_ACCESS_KEY_ID",
+    "CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+    "CLOUDFLARE_R2_BUCKET_NAME",
+    "BACKEND_PORT",
+    "FRONTEND_URL",
+]
+
+def get_env(key: str, default: str = None):
+    value = os.getenv(key, default)
+    if value is None:
+        print(f"⚠️  WARNING: Environment variable '{key}' is missing.")
+    return value
+
+for key in REQUIRED_KEYS:
+    if not os.getenv(key):
+        print(f"❌ ERROR: Missing required environment variable '{key}'. App may not function properly.")
+
+GROQ_API_KEY = get_env("GROQ_API_KEY")
+OPENAI_API_KEY = get_env("OPENAI_API_KEY")
+PIXABAY_API_KEY = get_env("PIXABAY_API_KEY")
+PEXELS_API_KEY = get_env("PEXELS_API_KEY")
+CLOUDFLARE_ACCOUNT_ID = get_env("CLOUDFLARE_ACCOUNT_ID")
+CLOUDFLARE_R2_ACCESS_KEY_ID = get_env("CLOUDFLARE_R2_ACCESS_KEY_ID")
+CLOUDFLARE_R2_SECRET_ACCESS_KEY = get_env("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+CLOUDFLARE_R2_BUCKET_NAME = get_env("CLOUDFLARE_R2_BUCKET_NAME")
+BACKEND_PORT = get_env("BACKEND_PORT", "8000")
+FRONTEND_URL = get_env("FRONTEND_URL", "http://localhost:3000")
+
+Serving the Frontend from FastAPI
+
+    During local dev: run FastAPI backend and React frontend separately.
+
+    For production:
+
+        Inside /frontend, run npm run build
+
+        Copy the dist (or build) folder into /app/static
+
+        In main.py:
+
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
+
+    MVP Build Order
+
+        Set up FastAPI backend with /chat and /edit routes.
+
+        Build React UI in /frontend with Tailwind + Shadcn UI.
+
+        Connect frontend to backend using relative API URLs.
+
+        Implement trim/cut first, then captions, music, b-roll.
+
+    Deployment Steps
+
+        Push repo to GitHub.
+
+        Connect to Railway → deploy backend + serve static frontend.
+
+        Add .env values in Railway dashboard.
+
+With this, the Replit Agent will:
+
+    Create a single codebase with backend & frontend folders
+
+    Set up .env.example & config.py
+
+    Include free API sign-up links in the build plan
+
+    Configure serving so the backend can host the built frontend in production
